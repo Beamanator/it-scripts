@@ -1,6 +1,6 @@
 /**
- * Last Updated: 11 Sept 2017
- * Source = StARS Scripts -> Google Apps Scripts
+ * Created: 11 Sept 2017
+ * Source = https://github.com/Beamanator/stars-scripts -> Google Apps Scripts
  * 
  * Purpose = Send email to RIPS email account with new user information, to make things nice and simple.
  * 
@@ -14,12 +14,13 @@ function getEmailColumnLetters() {
   return {
     // required columns:
     'L': 'New StARS email:',
-    'O': 'RIPS account needed?',
+    // 'O': 'RIPS account needed?',
     'J': 'Program of new staff:',
     'Q': 'Caseworker needed?',
     
     // optional columns:
     'C': 'Name of new staff:',
+    'P': 'Temporary password',
     'B': 'New user request from:'
   };
 }
@@ -28,6 +29,25 @@ function getEmailRIPS() {  return 'RIPS@stars-egypt.org';  }
 function getEmailSentColumnLetter()   {  return 'R';  } // actual col #, not index
 
 function getEmailSubject()   {  return 'New RIPS Account - Login Details';  }
+function getTemplateEmailText() {
+  return 'Hello <NAME>,' +
+    '\n' +
+    '\nBelow is the login information for your new RIPS account! Get excited!' +
+    '\n' +
+    '\nHere is the link to RIPS: http://rips.247lib.com/Stars/' +
+    '\n-\tYour username is: The first part of your email address before the "@" symbol.' +
+    '\n-\tYour password is: <PASSWORD>' +
+    '\n' +
+    '\nPlease make sure that you complete the following steps after receiving this email:' +
+    '\n1) Create a new password (by clicking the link "Request a Password Reset" on the RIPS login page).' + 
+    '\n2) Install the RIPS validation extension. Here is the link to the installation instructions: https://goo.gl/x1aZc9' +
+    '\n' +
+    '\nLet me know if you have any questions!' +
+    '\n' +
+    '\nThanks,' +
+    '\n' +
+    '\nAlex "The RIPS Guy" Beaman';
+}
 
 // Add a custom menu to the active spreadsheet, including a separator and a sub-menu.
 function onOpen(e) {
@@ -142,7 +162,7 @@ function emailStaffData(rowIndexArray, data) {
   var emailColumnLetters = getEmailColumnLetters();
 
   // output headers
-  message += '\nRow #s:';
+  message += '\nRow #s:\t';
   Object.keys(emailColumnLetters).forEach(function(key) {
     var colDesc = emailColumnLetters[key];
     
@@ -167,6 +187,12 @@ function emailStaffData(rowIndexArray, data) {
       message += '\t' + colData + '\t|';
     });
   }
+
+  // add some spacing
+  message += '\n\n';
+
+  // add template email text
+  message += getTemplateEmailText();
   
   // send email
   MailApp.sendEmail(email, getEmailSubject(), message);
