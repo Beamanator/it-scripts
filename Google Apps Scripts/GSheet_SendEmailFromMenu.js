@@ -40,7 +40,7 @@ function getTemplateEmailText() {
     '\n' +
     '\nPlease make sure that you complete the following steps after receiving this email:' +
     '\n1) Create a new password (by clicking the link "Request a Password Reset" on the RIPS login page).' + 
-    '\n2) Install the RIPS validation extension. Here is the link to the installation instructions: https://goo.gl/x1aZc9' +
+    '\n2) Install the RIPS validation extension. Here is the link to the installation instructions: http://bit.ly/2x54v4T' +
     '\n' +
     '\nLet me know if you have any questions!' +
     '\n' +
