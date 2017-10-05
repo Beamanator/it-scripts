@@ -1,18 +1,18 @@
-// last updated: 28 May 2017
-// ====================================================================================================
-//                                   START - SIO Copy & Move to On-Call Sheets
-// ====================================================================================================
-
-// TODO: potentially beneficial enhancements:
-// color an issue red [background] if it isn't handled by map object
+/**
+ * Last Updated: 5 Oct 2017
+ * title: SIO Copy & Move to On-Call Sheets
+ * author: The RIPS Guy
+ * purpose: Assist in moving client information between tabs of the 
+ * SIO On-Call Spreadsheet
+ */ 
 
 // separate function for every SIO (and different buttons)
-function clickedSIOAbdelfatah() {     mainFn();   }
-function clickedSIOAdemFrench() {     mainFn();   }
-function clickedSIOInterpreter(){     mainFn();   }
+// function clickedSIOAbdelfatah() {     mainFn();   }
+// function clickedSIOAdemFrench() {     mainFn();   }
+// function clickedSIOInterpreter(){     mainFn();   }
 
-function clickedSIOJimie()      {     Logger.log('clicked Jimie');        }
-function clickedSIORasha()      {     Logger.log('clicked Rasha');        }
+// function clickedSIOJimie()      {     Logger.log('clicked Jimie');        }
+// function clickedSIORasha()      {     Logger.log('clicked Rasha');        }
 
 // ------------------------------------- constants ------------------------------------
 function getStartRowRow()  {  return   0; } // index - so first row = 0
@@ -57,7 +57,7 @@ function transformRowLocation(service) {
     'PS-medical':    'skip',
     'PS-UCY':        'skip',
     
-    // not in list, as of 28 May 2017
+    // if some don't have mappings, cell should turn red
     'Food vouchers': 'MoveFail',
     'Education':     'MoveFail'
   };
@@ -65,26 +65,45 @@ function transformRowLocation(service) {
   return map[service];
 }
 
-// ----------------------------------- main function ----------------------------------- 
+/**
+ * Add a custom menu to the active spreadsheet, including a separator and a
+ * sub-menu.
+ * 
+ * @param {object} e - event object
+ */
+function onOpen(e) {
+  SpreadsheetApp.getUi()
+    .createMenu('Move')
+    .addItem('Move Client(s)', 'mainFn')
+    .addToUi();
+}
+
+/**
+ * ----------------------------------- main function ----------------------------------- 
+ */
 function mainFn() {
   // get active spreadsheet & sheet
   var mainSS = SpreadsheetApp.getActiveSpreadsheet();
   var thisS = mainSS.getActiveSheet();
   
-  // get data range of sheet
+  // get data range and 2D array of values in sheet
   var sheetVs = thisS.getDataRange().getValues();
-  
+
+  // get header row where starting row # is held
   var headerRow = sheetVs[getHeaderRowRow()];
   
+  // get starting row index from header row
   var startRowIndex = getStartingRowIndex(sheetVs);
   
+  // move rows to other sheets
   moveRows(sheetVs, startRowIndex, headerRow);
 //  var dataToSend = getData(headerRow, sheetVs[startRowIndex]);
 //  Logger.log(data);
   
+  //get last row # so the "starting row number" can be updated
   var lastRow = sheetVs.length;
   
-  // set starting row to end of data range
+  // set starting row number to end of data range, so we don't duplicate sending client rows
   thisS.getRange(getStartRowRow() + 1, getStartRowCol() + 1).setValue( lastRow + 1 );
 }
 
@@ -93,10 +112,12 @@ function mainFn() {
 // function gets the client data starting on row @param1
 function moveRows(sheetVs, startRowIndex, headerRow) {
   
-  // loop through all rows of data in spreadsheet, after the "next row to send"
+  // loop through all rows of data in spreadsheet, after the "starting row number",
+  // a.k.a. the next row to send
   for (var i = startRowIndex; i < sheetVs.length; i++) {
     var row = sheetVs[i];
     
+    // get data for row to move
     var rowData = getRowData(headerRow, row);
     
     if (rowData.length < 1) break;
@@ -129,8 +150,6 @@ function moveRow(row, rowIndex) {
     var rowNum = getMoveRow( newSheet.getDataRange().getValues() );
     
     newSheet.getRange(rowNum, getTargetColIndex()+1, 1, row.length).setValues([row]);
-    
-//    Logger.log(newSheet.getName());
   }
 }
 
@@ -156,6 +175,7 @@ function getMoveRow(dataRange) {
 }
 
 function getRowData(headerRow, dataRow) {
+  // name is first row, so must be populated!
   if (dataRow[0] === '') return [];
   var dataToSend = [];
   
@@ -187,8 +207,14 @@ function joinArr(orig, addition) {
   return orig;
 }
 
-// function gets the row index to start grabbing client data for move
+/**
+ * Function gets the row index to start grabbing client data for more
+ * 
+ * @param {object} sheetVs - 2D array of all data in spreadsheet 
+ * @returns {number} - index to start gathering data from
+ */
 function getStartingRowIndex(sheetVs) {
+  // get row and column of start row
   var row = getStartRowRow();
   var col = getStartRowCol();
   
@@ -238,7 +264,3 @@ function manipulate(key, data, headerRowIndex) {
   
   return returnArr;
 }
-
-// ----------------------------------------------------------------------------------------------------
-//                                     END - SIO Copy & Move script
-// ----------------------------------------------------------------------------------------------------
