@@ -1,5 +1,6 @@
 /**
  * Created: 11 Sept 2017
+ * Last Updated: 5 Oct 2017
  * Source = https://github.com/Beamanator/stars-scripts -> Google Apps Scripts
  * 
  * Purpose = Send email to RIPS email account with new user information, to make things nice and simple.
@@ -27,8 +28,26 @@ function getEmailColumnLetters() {
 
 function getEmailRIPS() {  return 'RIPS@stars-egypt.org';  }
 function getEmailSentColumnLetter()   {  return 'R';  } // actual col #, not index
-
 function getEmailSubject()   {  return 'New RIPS Account - Login Details';  }
+/*
+Hello <NAME>,
+
+Below is the login information for your new RIPS account! Get excited!
+
+Here is the link to RIPS: http://rips.247lib.com/Stars/
+-   Your username is: The first part of your email address before the "@" symbol.
+-   Your password is: <PASSWORD>
+
+Please make sure that you complete the following steps after receiving this email:
+1) Create a new password (by clicking the link "Request a Password Reset" on the RIPS login page).
+2) Install the RIPS validation extension. Here is the link to the installation instructions: http://bit.ly/2x54v4T
+
+Let me know if you have any questions!
+
+Thanks,
+
+Alex "The RIPS Guy" Beaman';
+ */
 function getTemplateEmailText() {
   return 'Hello <NAME>,' +
     '\n' +
