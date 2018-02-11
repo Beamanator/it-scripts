@@ -1,4 +1,8 @@
 // Last updated Early July 2017
+
+// ============================== DEBUGGING ================================
+// NOTE [from 11 Feb 2018]: If form submissions stop getting into new tab, try re-creating / re-running createFormFormSubmitTrigger()
+
 // ============================== CONSTANTS ================================
 function getSourceSheetName()       { return 'RSD Workshop New entries'; }
 function getTargetSheetName()       { return "FI Workshop";              }
