@@ -1,6 +1,6 @@
 var output = '';
 
-// loop through table on rips.247lib.com/StarsSup/User/UserDetails
+// loop through table on user's details
 $('table.webGrid tbody tr').each(function(index, elem) {
     let rowArr = elem.getElementsByTagName('td');
     
