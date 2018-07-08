@@ -26,7 +26,8 @@ function getEmailColumnLetters() {
   };
 }
 
-function getEmailRIPS() {  return 'RIPS@stars-egypt.org';  }
+function getEmailRIPS()   { return 'RIPS@stars-egypt.org';  }
+function getEmailBackup() { return 'asadaqa@stars-egypt.org'; }
 function getEmailSentColumnLetter()   {  return 'R';  } // actual col #, not index
 function getEmailSubject()   {  return 'New RIPS Account - Login Details';  }
 /*
@@ -177,7 +178,8 @@ function getColNumbersFromLetters(cols) {
  */
 function emailStaffData(rowIndexArray, data) {
   var message = 'New staff members to email:';
-  var email = getEmailRIPS();
+  var emailRIPS = getEmailRIPS();
+  var emailBackup = getEmailBackup();
   var emailColumnLetters = getEmailColumnLetters();
 
   // output headers
@@ -213,8 +215,9 @@ function emailStaffData(rowIndexArray, data) {
   // add template email text
   message += getTemplateEmailText();
   
-  // send email
-  MailApp.sendEmail(email, getEmailSubject(), message);
+  // send email to RIPS guy / gal + backup
+  MailApp.sendEmail(emailRIPS, getEmailSubject(), message);
+  MailApp.sendEmail(emailBackup, getEmailSubject(), message);
 }
 
 /**
