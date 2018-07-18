@@ -52,7 +52,14 @@ Alex "The RIPS Guy" Beaman';
 function getTemplateEmailText() {
   return 'Hello <NAME>,' +
     '\n' +
-    '\nBelow is the login information for your new RIPS account! Get excited!' +
+    '\nYou have a new RIPS account!' +
+    '\n' +
+    '\nRIPS is the main system StARS uses to track the work we do with individual clients. ' +
+      'During your time at StARS, you will learn how to access that information, ' +
+      'and you may even learn how to add new information to the system. ' +
+      'Your coordinator should schedule a training for you soon.' +
+    '\n' +
+    '\nBelow is the login information for your new RIPS account. Get excited!' +
     '\n' +
     '\nHere is the link to RIPS: http://rips.247lib.com/Stars/' +
     '\n-\tYour username is: The first part of your email address before the "@" symbol.' +
