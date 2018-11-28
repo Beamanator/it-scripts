@@ -1,7 +1,8 @@
 /**
  * Created: 11 Sept 2017
- * Last Updated: 5 Oct 2017
- * Source = https://github.com/Beamanator/stars-scripts -> Google Apps Scripts
+ * Latest updates:
+ *** 28 Nov 2018 - Rearranged some columns, so updated getEmailColumnLetters() & getEmailSentColumnLetter().
+ * Source = https://github.com/Beamanator/stars-scripts/blob/master/Google%20Apps%20Scripts/GSheet_SendEmailFromMenu.js
  * 
  * Purpose = Send email to RIPS email account with new user information, to make things nice and simple.
  * 
@@ -14,34 +15,38 @@
 function getEmailColumnLetters() {
   return {
     // required columns:
-    'L': 'New StARS email:',
-    // 'O': 'RIPS account needed?',
-    'J': 'Program of new staff:',
-    'Q': 'Caseworker needed?',
+    'N': 'New StARS email:',
+    // 'Q': 'RIPS account needed?',
+    'E': 'Program of new staff:',
+    'S': 'Caseworker needed?',
     
     // optional columns:
-    'C': 'Name of new staff:',
-    'P': 'Temporary password',
+    'D': 'Name of new staff:',
+    'R': 'Temporary password',
     'B': 'New user request from:'
   };
 }
 
 function getEmailRIPS()   { return 'RIPS@stars-egypt.org';  }
 function getEmailBackup() { return 'asadaqa@stars-egypt.org'; }
-function getEmailSentColumnLetter()   {  return 'R';  } // actual col #, not index
+function getEmailSentColumnLetter()   {  return 'T';  } // actual col #, not index
 function getEmailSubject()   {  return 'New RIPS Account - Login Details';  }
 /*
 Hello <NAME>,
 
+You have a new RIPS account!
+
+RIPS is the main system StARS uses to track the work we do with individual clients. During your time at StARS, you will learn how to access that information, and you may even learn how to add new information to the system. Your coordinator should schedule a training for you soon.
+
 Below is the login information for your new RIPS account! Get excited!
 
 Here is the link to RIPS: http://rips.247lib.com/Stars/
--   Your username is: The first part of your email address before the "@" symbol.
--   Your password is: <PASSWORD>
+-    Your username is: The first part of your email address before the "@" symbol.
+-    Your password is: <PASSWORD>
 
 Please make sure that you complete the following steps after receiving this email:
-1) Create a new password (by clicking the link "Request a Password Reset" on the RIPS login page).
-2) Install the RIPS validation extension. Here is the link to the installation instructions: http://bit.ly/2x54v4T
+1) Create a new password for your RIPS account. Here are instructions: http://bit.ly/2Bn7rcK
+2) Install the RIPS validation extension. Here are the installation instructions: http://bit.ly/2x54v4T
 
 Let me know if you have any questions!
 
@@ -66,8 +71,8 @@ function getTemplateEmailText() {
     '\n-\tYour password is: <PASSWORD>' +
     '\n' +
     '\nPlease make sure that you complete the following steps after receiving this email:' +
-    '\n1) Create a new password (by clicking the link "Request a Password Reset" on the RIPS login page).' + 
-    '\n2) Install the RIPS validation extension. Here is the link to the installation instructions: http://bit.ly/2x54v4T' +
+    '\n1) Create a new password for your RIPS account. Here is a step-by-step guide: http://bit.ly/2Bn7rcK' + 
+    '\n2) Install the RIPS validation extension. Here are the installation instructions: http://bit.ly/2x54v4T' +
     '\n' +
     '\nLet me know if you have any questions!' +
     '\n' +
