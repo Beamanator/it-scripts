@@ -6,3 +6,8 @@ Some useful Regular Expressions:
    - Useful for UNHCR #s in Google Forms
 2)	`^([a-zA-Z0-9_\-\.]+)@stars-egypt\.org(,[ ]{0,1}([a-zA-Z0-9_\-\.]+)@stars-egypt\.org)*$`
     - Multiple Emails (delimiter: ',' or ', ') - email addresses ending with `"...@stars-egypt.org"`
+
+# other useful things i've learned along the way:
+
+## Google Apps Scripts
+1. When getting data from a question (using the `namedValues` prop), the data is returned in an Array, so if you want to check the response text is exactly the same as a string, try using `[0]` to pull the string out.
