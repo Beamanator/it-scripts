@@ -26,7 +26,7 @@ function submit(eventObj) {
     // grab data from triggerObj
     var namedValues = eventObj.namedValues;
     var range = eventObj.range;
-    // Note: unused props: authMode, values, source, triggerUid
+    // Unused props: authMode, values, source, triggerUid
 
     // get source's sheet name
     const sourceSheetName = range.getSheet().getName().trim().toUpperCase();
@@ -47,7 +47,7 @@ function submit(eventObj) {
         // htmlBody: '...', // conditionally set below
     };
   
-    // if promotion / transferred, send extra body text
+    // if promotion / transferred, send extra program body text
     if (formReason === 'Staff member being promoted OR transferring between programs') {
         email['htmlBody'] = emailBodyIntro(formFilledBy, formReason) + programEmailBody() + HRemailBody();
     } else {
@@ -90,6 +90,7 @@ function HRemailBody() {
         + '</ul>'
         + '<i>P.S. Email "it.team@stars-egypt.org" if you would like to edit this message :)</i>';
 }
+// TODO: test this function, then delete it :)
 function testEmail() {
     MailApp.sendEmail({
         noReply: true,
