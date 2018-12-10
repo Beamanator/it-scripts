@@ -1,3 +1,6 @@
+// -> Script used in StARS New Staff Form
+// -> Form name changed to StARS - New / Promoted / Transferred Staff Members
+
 // ============================ DEBUGGING NOTES =============================
 // NOTE [from 11 Feb 2018]: If form submissions stop getting into
 // -> new tab, try re-creating / re-running createFormFormSubmitTrigger()
@@ -10,10 +13,13 @@ function getSubmitterEmailAddress()  { return 'Email Address' }
 function getHREmail()         { return 'hr@stars-egypt.org' }
 function getVolunteerEmail()  { return 'volunteer@stars-egypt.org' }
 
+function getPromoteDeleteFormURL() { return 'https://drive.google.com/open?id=1heYm2qy4Gog_usQbqRLmgnwA5ANcRg3Y' }
+
 // ======================== ONE-TIME TRIGGER SETUP =========================
 // set up trigger that listens for form submission
 // Note: only needs to be set up once
-// -> to check if trigger is set up, visit Edit -> Current Project's Triggers in Script editor page
+// -> to check if trigger is set up, visit:
+// -> Edit => Current Project's Triggers in Script editor page
 function createFormFormSubmitTrigger() {
     var ss = SpreadsheetApp.getActive();
     ScriptApp.newTrigger('submit')
@@ -35,36 +41,56 @@ function submit(eventObj) {
     if (sourceSheetName !== getNewFormSheetName().toUpperCase()) return;
 
     // get data from namedValues
-    const formReason = namedValues[ getFormReasonQuestion() ];
-    const formFilledBy = namedValues[ getSubmitterEmailAddress() ];
+    // Note: have to use [0] to get the string value out of an array
+    const formReason = namedValues[ getFormReasonQuestion() ][0];
+    const formFilledBy = namedValues[ getSubmitterEmailAddress() ][0];
+    var error = false;
 
+    // create basic email template
     const email = {
         // name: 'New StARS Staff Form', // (not used if noReply is true)
         noReply: true,
         to: getHREmail(),
-        // cc: '...', // conditionally set below
+        cc: 'abeaman@stars-egypt.org', // default (may change below)
         subject: 'New staff form submitted!',
-        // htmlBody: '...', // conditionally set below
+        htmlBody: emailBodyIntro(formFilledBy, formReason) + HRemailBody(), // default (may change below)
     };
-  
-    // if promotion / transferred, send extra program body text
-    if (formReason === 'Staff member being promoted OR transferring between programs') {
-        email['htmlBody'] = emailBodyIntro(formFilledBy, formReason) + programEmailBody() + HRemailBody();
-    } else {
-        email['htmlBody'] = emailBodyIntro(formFilledBy, formReason) + HRemailBody();
-    }
 
-    // if volunteer, cc volunteer officer
-    if (formReason === 'Volunteer') {
-        email['cc'] = getVolunteerEmail() + ',abeaman@stars-egypt.org';
-    } else {
-        email['cc'] = 'abeaman@stars-egypt.org' ;
+    // change email based on form reason
+    switch (formReason) {
+        case 'New staff':
+            Logger.log('new staff');
+            break;
+        case 'Interpreter':
+            Logger.log('interpreter');
+            break;
+
+        // handle special cases below...
+        case 'Staff member being promoted OR transferring between programs':
+            Logger.log('promoted / transferred');
+            email['to'] = formFilledBy;
+            email['cc'] = getHREmail() + ',abeaman@stars-egypt.org';
+            email['htmlBody'] = emailBodyIntro(formFilledBy, formReason) + programEmailBody()
+                + HRemailBody();
+            break;
+            
+        case 'Volunteer':
+            Logger.log('volunteer');
+            email['cc'] = getVolunteerEmail() + ',abeaman@stars-egypt.org';
+            break;
+          
+        // default (shouldn't get here unless we're not handling cases properly!)
+        default:
+            Logger.log('Error: Form reason not matched in switch statement! Fix!');
+            Logger.log('"Form reason" that doesn\'t match: ' + formReason);
+            error = true;
     }
 
     // aaand send!
-    MailApp.sendEmail(email);
-
-    Logger.log('done notifying HR of form filled');
+    if (!error) {
+        MailApp.sendEmail(email);
+        Logger.log('Done notifying HR of form filled');
+    }
 }
 
 // ================================ Email Templates ================================
@@ -74,28 +100,20 @@ function emailBodyIntro(formFilledBy, formReason) {
         + '<br><br>';
 }
 function programEmailBody() {
-    return '<strong>Reminder for program promoting / transferring staff member:</strong>'
+    return '<strong>Reminder for Program that is promoting / transferring staff member:</strong>'
+        + ' Please send the following to HR:'
         + '<br><ul>'
-            + '<li>Job Description</li>'
+            + '<li>An updated job description</li>'
             + '<li>Start Date of new position</li>'
-            + '<li>Fill <a href="https://drive.google.com/open?id=1heYm2qy4Gog_usQbqRLmgnwA5ANcRg3Y">promotion / demotion form</a>'
+            + '<li>Fill out the <a href="' + getPromoteDeleteFormURL() + '">Staff Promotion / Demotion Form</a>'
         + '</ul>';
 }
 function HRemailBody() {
-    return '<strong>Reminder for HR staff: Follow this checklist:</strong>'
+    return '<strong>Reminder for HR staff:</strong> Follow this checklist:'
         + '<br><ul>'
             + '<li>Prepare Contract to be signed</li>'
             + '<li>Check references</li>'
             + "<li>Start employee personnel file (including ID's)</li>"
         + '</ul>'
         + '<i>P.S. Email "it.team@stars-egypt.org" if you would like to edit this message :)</i>';
-}
-// TODO: test this function, then delete it :)
-function testEmail() {
-    MailApp.sendEmail({
-        noReply: true,
-        to: 'abeaman@stars-egypt.org',
-        subject: 'New staff form submitted!',
-        htmlBody: emailBodyIntro('bob', 'cuz i want to') + programEmailBody() + HRemailBody(),
-    });
 }
