@@ -2,6 +2,7 @@
  * Created: 11 Sept 2017
  * Latest updates:
  *** 28 Nov 2018 - Rearranged some columns, so updated getEmailColumnLetters() & getEmailSentColumnLetter().
+ *** 19 Dec 2018 - Transitioning RIPS guys (adding Abdullah)
  * Source = https://github.com/Beamanator/stars-scripts/blob/master/Google%20Apps%20Scripts/GSheet_SendEmailFromMenu.js
  * 
  * Purpose = Send email to RIPS email account with new user information, to make things nice and simple.
@@ -52,7 +53,7 @@ Let me know if you have any questions!
 
 Thanks,
 
-Alex "The RIPS Guy" Beaman';
+Abdullah & Alex "The RIPS Guys"';
  */
 function getTemplateEmailText() {
   return 'Hello <NAME>,' +
@@ -78,7 +79,7 @@ function getTemplateEmailText() {
     '\n' +
     '\nThanks,' +
     '\n' +
-    '\nAlex "The RIPS Guy" Beaman';
+    '\nAbdullay & Alex "The RIPS Guys"';
 }
 
 // Add a custom menu to the active spreadsheet, including a separator and a sub-menu.
