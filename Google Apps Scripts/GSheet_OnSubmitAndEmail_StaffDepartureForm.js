@@ -53,7 +53,7 @@ function submit(eventObj) {
         // name: 'New StARS Staff Form', // (not used if noReply is true)
         noReply: true,
         to: formFilledBy,
-        cc: getHREmail() + ',abeaman@stars-egypt.org',
+        cc: getHREmail(),
         subject: 'Staff departure form submitted',
         htmlBody: emailBodyIntro(formFilledBy) +
             programEmailBody() +

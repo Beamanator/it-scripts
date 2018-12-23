@@ -51,7 +51,7 @@ function submit(eventObj) {
         // name: 'New StARS Staff Form', // (not used if noReply is true)
         noReply: true,
         to: getHREmail(),
-        cc: 'abeaman@stars-egypt.org', // default (may change below)
+        // cc: null, // default is empty (may change below)
         subject: 'New staff form submitted!',
         htmlBody: emailBodyIntro(formFilledBy, formReason) + HRemailBody(), // default (may change below)
     };
@@ -69,14 +69,14 @@ function submit(eventObj) {
         case 'Staff member being promoted OR transferring between programs':
             Logger.log('promoted / transferred');
             email['to'] = formFilledBy;
-            email['cc'] = getHREmail() + ',abeaman@stars-egypt.org';
+            email['cc'] = getHREmail();
             email['htmlBody'] = emailBodyIntro(formFilledBy, formReason) + programEmailBody()
                 + HRemailBody();
             break;
             
         case 'Volunteer':
             Logger.log('volunteer');
-            email['cc'] = getVolunteerEmail() + ',abeaman@stars-egypt.org';
+            email['cc'] = getVolunteerEmail();
             break;
           
         // default (shouldn't get here unless we're not handling cases properly!)
