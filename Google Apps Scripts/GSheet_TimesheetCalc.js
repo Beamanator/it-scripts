@@ -3,9 +3,6 @@
 TODOs:
 1) allow multiple groups of times
 ex: '8:00am - 2:23pm, 4:00pm - 5:15pm' // returns '7hrs 38mins'
-2) allow blank ('') / 0 / 0hrs input
-ex: '0hrs' // returns '0hrs'
-ex: '' // returns '0hrs'
 */
 
 /**
@@ -18,70 +15,97 @@ ex: '' // returns '0hrs'
  * @return total amount of time in '#hrs #mins' format
  * @customfunction
  */
-function GET_H_MM(timeRange) {
-  if (!timeRange)
-    return "Err: Please pass a cell reference with a time to the function.";
+function GET_H_MM(totalTime) {
+  totalTime = totalTime.toLowerCase().trim();
 
-  // --> search timeRange for groups of (...) text, and remove them <--
-  //   match any letter, number, or ! and ? and ' ' inside a set of parenthesis ()
-  var validCharsInParenthesis = "[a-z0-9!? ]";
-  var parenthesisRegex = RegExp(
-    "\\(" + validCharsInParenthesis + "{0,}\\)",
-    "gi"
-  );
-  var regexMatch,
-    parenthesisTextMatches = [];
-  while ((regexMatch = parenthesisRegex.exec(timeRange)) !== null) {
-    // push string that was matched into matchArray
-    parenthesisTextMatches.push(regexMatch[0]);
-  }
-  // delete parenthesis group from timeRange text
-  for (var i = 0; i < parenthesisTextMatches.length; i++) {
-    timeRange = timeRange.replace(parenthesisTextMatches[i], "");
-  }
+  // treat plan dash '-' as 0 hours
+  if (totalTime === "-") return "0hrs";
 
-  // search for other left or right parens, throw errors if they exist!
-  if (timeRange.indexOf("(") !== -1 || timeRange.indexOf(")") !== -1)
-    return (
-      "Err in (): Nested OR unmatched open / closing OR invalid text " +
-      validCharsInParenthesis
-    );
+  // error if time range is undefined / falsy but not an empty string
+  if (!totalTime)
+    throw Error("Please pass a cell reference with a time, or '-' for 0hrs.");
 
-  // make sure time format looks right
-  if (timeRange.indexOf(",") !== -1)
-    return "Err: Found ',' but function doesn't handle multiple time ranges yet";
-  var firstSplit = timeRange.split("-");
-  if (firstSplit.length !== 2)
-    return 'Err: Time should have 1 "-" character ONLY.';
-  if (timeRange.indexOf("=") !== -1)
-    return "Err: Remove your calculation (=) please.";
+  // ask user (politely) to remove her / his time calculation
+  if (totalTime.indexOf("=") !== -1)
+    throw Error("Remove your calculation (=) please.");
 
-  // get start & end times
-  var startTime = firstSplit[0].trim();
-  var endTime = firstSplit[1].trim();
+  // remove parenthesis groups from timeRange
+  totalTime = removeParenthesisGroupsFromString(totalTime);
 
-  // get total number of hours & minutes in each time
-  var startHrs = getHoursFromTime(startTime);
-  var startMins = getMinutesFromTime(startTime);
-  var endHrs = getHoursFromTime(endTime);
-  var endMins = getMinutesFromTime(endTime);
+  // f no special characters, treat as special cell like annual leave, other leave, etc
+  if (!/[-(),:]/.test(totalTime)) {
+    var expectedSpecialCells = [
+      "annual leave",
+      "al",
+      "other leave",
+      "ol",
+      "compassionate leave",
+      "cl",
+      "toil"
+    ];
 
-  // display errors if there are any so far
-  if (startHrs.err) return startHrs.err;
-  if (startMins.err) return startMins.err;
-  if (endHrs.err) return endHrs.err;
-  if (endMins.err) return endMins.err;
+    var specialCellFound = false;
 
-  // calculate totals
-  var totalMins = endMins - startMins;
-  var totalHrs = endHrs - startHrs;
-  if (endMins < startMins) {
-    totalHrs--;
-    totalMins += 60;
+    for (var i = 0; i < expectedSpecialCells.length; i++) {
+      var specialCell = expectedSpecialCells[i];
+
+      // first, check if text IS EXACTLY one of the expected values
+      if (specialCell === totalTime) {
+        specialCellFound = true;
+        break;
+      }
+    }
+
+    if (specialCellFound) {
+      return "0hrs";
+    }
+    // otherwise, throw error
+    else {
+      throw Error("Cannot determine what you entered!");
+    }
   }
 
-  // handle end time BEFORE start time
-  if (totalHrs < 0) return "Err: Start time must be BEFORE End time";
+  // here, split into multiple calcuations, 1 + 1 extra calc for every comma
+  var timeRanges = totalTime.split(",");
+
+  var totalHrs = 0;
+  var totalMins = 0;
+
+  for (var i = 0; i < timeRanges.length; i++) {
+    var timeRange = timeRanges[i];
+
+    // make sure time format looks right
+    var firstSplit = timeRange.split("-");
+    if (firstSplit.length !== 2)
+      throw Error('Time "' + timeRange + '" should have exactly 1 dash "-".');
+
+    // get start & end times
+    var startTime = firstSplit[0].trim();
+    var endTime = firstSplit[1].trim();
+
+    // get total number of hours & minutes in each time
+    var startHrs = getHoursFromTime(startTime);
+    var startMins = getMinutesFromTime(startTime);
+    var endHrs = getHoursFromTime(endTime);
+    var endMins = getMinutesFromTime(endTime);
+
+    // calculate totals
+    var sumMins = endMins - startMins;
+    var sumHrs = endHrs - startHrs;
+    if (sumMins < 0) {
+      sumHrs--;
+      sumMins += 60;
+    }
+
+    // handle end time BEFORE start time
+    if (sumHrs < 0)
+      throw Error("Start time must be BEFORE End time: " + timeRange);
+
+    totalHrs += sumHrs;
+    totalMins += sumMins;
+  }
+
+  // TODO: handle mins > 60 (convert to extra hour)
 
   // output totals
   return totalHrs + "hrs " + totalMins + "mins";
@@ -95,21 +119,16 @@ function getHoursFromTime(time) {
   // determine if time in 'am' or 'pm' or invalid
   if (time.indexOf("am") !== -1) isPm = false;
   else if (time.indexOf("pm") !== -1) isPm = true;
-  else return { err: "Err: Couldn't find 'am' or 'pm' in '" + time + "'" };
+  else throw Error("Couldn't find 'am' or 'pm' in '" + time + "'");
 
   // calculate number of hours + if valid
   if (time.indexOf(":") === -1)
-    return {
-      err: "Err: Couldn't find time / minute separator ':' in '" + time + "'"
-    };
+    throw Error("Couldn't find time / minute separator ':' in '" + time + "'");
   var numHours = parseInt(time.split(":")[0]);
   if (numHours > 12 || numHours < 1)
-    return {
-      err:
-        "Err: Number of hours should be between 1 and 12 (inclusive) in '" +
-        time +
-        "'"
-    };
+    throw Error(
+      "Number of hours should be between 1 and 12 (inclusive) in '" + time + "'"
+    );
 
   // convert hours to 0 - 23, instead of 0-11 for am + pm
   if (isPm) {
@@ -131,11 +150,9 @@ function getMinutesFromTime(time) {
 
   // determine if time is valid
   if (time.indexOf("am") === -1 && time.indexOf("pm") === -1)
-    return { err: "Err: Couldn't find 'am' or 'pm' in '" + time + "'" };
+    throw Error("Couldn't find 'am' or 'pm' in '" + time + "'");
   if (time.indexOf(":") === -1)
-    return {
-      err: "Err: Couldn't find time / minute separator ':' in '" + time + "'"
-    };
+    throw Error("Couldn't find time / minute separator ':' in '" + time + "'");
 
   // remove 'am' and / or 'pm'
   var numMinutesString = time
@@ -146,18 +163,46 @@ function getMinutesFromTime(time) {
 
   // determine if numMinutesString is valid
   if (numMinutesString.length !== 2)
-    return { err: "Err: Minutes in '" + time + "' should be exactly 2 digits" };
+    throw Error("Minutes in '" + time + "' should be exactly 2 digits");
 
   var numMinutes = parseInt(numMinutesString, 10);
 
   // determine if numMinutes is valid
   if (isNaN(numMinutes) || numMinutes < 0 || numMinutes > 59)
-    return {
-      err:
-        "Err: Number of minutes in '" +
+    throw Error(
+      "Number of minutes in '" +
         time +
         "' should be between 0 and 59 (inclusive)"
-    };
+    );
 
   return numMinutes;
+}
+
+function removeParenthesisGroupsFromString(string) {
+  // --> search timeRange for groups of (...) text, and remove them <--
+  //   match any letter, number, or ! and ? and ' ' inside a set of parenthesis ()
+  var validCharsInParenthesis = "[a-z0-9!? ]";
+  var parenthesisRegex = RegExp(
+    "\\(" + validCharsInParenthesis + "{0,}\\)",
+    "gi"
+  );
+  var regexMatch,
+    parenthesisTextMatches = [];
+  while ((regexMatch = parenthesisRegex.exec(string)) !== null) {
+    // push string that was matched into matchArray
+    parenthesisTextMatches.push(regexMatch[0]);
+  }
+  // delete parenthesis group from timeRange text
+  for (var i = 0; i < parenthesisTextMatches.length; i++) {
+    string = string.replace(parenthesisTextMatches[i], "");
+  }
+
+  // search for other left or right parens, throw errors if they exist!
+  if (string.indexOf("(") !== -1 || string.indexOf(")") !== -1)
+    throw Error(
+      "Err in (): Nested OR unmatched open / closing OR invalid text " +
+        validCharsInParenthesis
+    );
+
+  return string;
 }
