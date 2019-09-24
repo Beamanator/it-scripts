@@ -16,6 +16,9 @@ var EMAIL_MAP = {
 	cc: "<EMAIL ADDRESS TO CC>",
 };
 
+var EMAIL_SUBJECT = "<YOUR EMAIL SUBJECT>";
+var EMAIL_BODY = "<YOUR EMAIL BODY>";
+
 // =========================== TRIGGER RESPONSE =============================
 // function triggered on form submission:
 function onSubmit(eventObj) {
@@ -87,8 +90,8 @@ function onSubmit(eventObj) {
 		noReply: true,
 		to: targetPersonEmail,
 		// cc: ccEmail,
-		subject: "<YOUR SUBJECT>",
-		htmlBody: "<YOUR HTML MESSAGE>",
+		subject: EMAIL_SUBJECT,
+		htmlBody: EMAIL_BODY,
 	};
 
 	// add email address to cc, if mapped
