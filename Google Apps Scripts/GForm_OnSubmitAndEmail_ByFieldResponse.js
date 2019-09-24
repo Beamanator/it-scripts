@@ -25,16 +25,16 @@ function onSubmit(eventObj) {
 	// get active form
 	var form = FormApp.getActiveForm();
 
-	// get all checkbox items in form (assuming question we want is checkbox!)
+	// get all multiple-choice items in form (assuming question we want is radio buttons!)
 	// https://developers.google.com/apps-script/reference/forms/item-type.html
-	var formCheckboxes = form.getItems(FormApp.ItemType.CHECKBOX);
+	var formFields = form.getItems(FormApp.ItemType.MULTIPLE_CHOICE);
 
 	// temporary vars
 	var targetField = null;
 
-	// loop through checkboxes to find checkbox with question title we want
-	for (var i = 0; i < formCheckboxes.length; i++) {
-		var thisField = formCheckboxes[i];
+	// loop through multiple-choice to find fields with question title we want
+	for (var i = 0; i < formFields.length; i++) {
+		var thisField = formFields[i];
 		var thisTitle = thisField.getTitle();
 
 		// check if title of current question matches target question title
